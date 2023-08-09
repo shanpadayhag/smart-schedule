@@ -1,6 +1,12 @@
 def scheduleTasksToday(reschedule: bool):
-    print('Scheduling tasks for today')
+    if reschedule:
+        # TODO: DELETE EXISTING TASKS
+        pass
+    # TODO: SCHEDULE TODAY TASKS
 
 def scheduleTasksForDays(days: int, reschedule: bool):
-    print('Scheduling tasks for {} days'.format(days))
+    if reschedule:
+        # TODO: DELETE EXISTING TASKS
+        pass
+    # TODO: SCHEDULE DAYS TASKS
 
