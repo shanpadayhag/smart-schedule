@@ -7,12 +7,14 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # If modifying these SCOPESs, delete the file token.json.
 SCOPES = ["https://www.googleapis.com/auth/calendar"]
-SCHEDULING_CALENDAR_ID = os.getenv("SCHEDULING_CALENDAR_ID")
-WORK_CALENDAR_ID = os.getenv("WORK_CALENDAR_ID")
-CREDS_ROOT = os.getenv("GOOGLE_CREDENTIALS_BASE_DIR")
+GOOGLE_CALENDAR_ID = os.environ.get("GOOGLE_CALENDAR_ID")
+CREDS_ROOT = os.environ.get("GOOGLE_CREDENTIALS_BASE_DIR")
 
 
 def get_credentials():
@@ -63,7 +65,7 @@ def get_recent():
         events_result = (
             service.events()
             .list(
-                calendarId=SCHEDULING_CALENDAR_ID,
+                calendarId=GOOGLE_CALENDAR_ID,
                 timeMin=now,
                 maxResults=10,
                 singleEvents=True,
@@ -97,7 +99,7 @@ def get_google_events(date_min, date_max):
             events = (
                 service.events()
                 .list(
-                    calendarId=SCHEDULING_CALENDAR_ID,
+                    calendarId=GOOGLE_CALENDAR_ID,
                     timeMin=date_min,
                     timeMax=date_max,
                     singleEvents=True,
@@ -134,7 +136,7 @@ def get_google_events(date_min, date_max):
             events = (
                 service.events()
                 .list(
-                    calendarId=WORK_CALENDAR_ID,
+                    calendarId=GOOGLE_CALENDAR_ID,
                     timeMin=date_min,
                     timeMax=date_max,
                     singleEvents=True,
@@ -166,7 +168,7 @@ def get_google_events(date_min, date_max):
 
 
 def add_google_event(
-    work_block, project_name, event_title, description, event_start, event_end
+    work_block, project_name, event_title, event_start, event_end
 ):
     BLOCK_TO_COLOR = {
         "Deep Work": 3,
@@ -181,9 +183,7 @@ def add_google_event(
         "{}: {}".format("Project", project_name),
         "{}: {}".format("Title", event_title),
     ]
-    if description != "":
-        desc_items.append("\n")
-        desc_items.append(description)
+    
     event = {
         "summary": work_block,
         "description": "\n".join(desc_items),
@@ -205,7 +205,7 @@ def add_google_event(
         service = build("calendar", "v3", credentials=creds)
         event = (
             service.events()
-            .insert(calendarId=SCHEDULING_CALENDAR_ID, body=event)
+            .insert(calendarId=GOOGLE_CALENDAR_ID, body=event)
             .execute()
         )
         return event
@@ -234,7 +234,7 @@ def delete_google_event(id_):
     service = build("calendar", "v3", credentials=creds)
     try:
         service.events().delete(
-            calendarId=SCHEDULING_CALENDAR_ID, eventId=id_
+            calendarId=GOOGLE_CALENDAR_ID, eventId=id_
         ).execute()
         return True
     except HttpError as error:

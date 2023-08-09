@@ -1,6 +1,8 @@
 import argparse
 from smart_schedule import schedule_notion_to_google
+from dotenv import load_dotenv
 
+load_dotenv()
 parser = argparse.ArgumentParser()
 
 parser.add_argument(

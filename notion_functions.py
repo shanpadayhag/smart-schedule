@@ -2,14 +2,17 @@ import requests
 import os
 from filters import date_filter, today_filter, tomorrow_filter
 import pprint
+from dotenv import load_dotenv
+
+load_dotenv()
 
 printer = pprint.PrettyPrinter()
 pprint = printer.pprint
 
 # Notion Environment Variables
-NOTION_API_KEY = os.getenv("NOTION_API_KEY")
-NOTION_TASK_LIST = os.getenv("NOTION_TASK_LIST")
-NOTION_PROJECTS_LIST = os.getenv("NOTION_PROJECTS_LIST")
+NOTION_SECRET_KEY = os.environ.get("NOTION_SECRET_KEY")
+NOTION_DATABASE_TASK_ID = os.environ.get("NOTION_DATABASE_TASK_ID")
+NOTION_DATABASE_PROJECTS_ID = os.environ.get("NOTION_DATABASE_PROJECTS_ID")
 
 cache = {}
 priorities = ["High", "Medium", "Low"]
@@ -20,7 +23,7 @@ def get_event_content(event_id):
     headers = {
         "accept": "application/json",
         "Notion-Version": "2022-06-28",
-        "Authorization": "Bearer {}".format(NOTION_API_KEY),
+        "Authorization": "Bearer {}".format(NOTION_SECRET_KEY),
     }
 
     response = requests.get(url, headers=headers)
@@ -29,44 +32,33 @@ def get_event_content(event_id):
 
 
 def get_event_data(event, projects):
-    event_content = get_event_content(event["id"])
-    description = ""
-    for content in event_content:
-        type_ = content['type']
-        content = content[type_]
-        if type_ == 'video':
-            description = description + "\n" + content["external"]["url"]
-        else:
-            description = '\n'.join([description] + [r["plain_text"] for r in content["rich_text"]])
-    if description != "":
-        description = description + "\n"
-    description += event["url"]
     event["properties"] = {
         str(key.encode("ascii", errors="ignore"))[2:-1].strip(): value
         for key, value in event["properties"].items()
     }
-    project_ids = event["properties"]["Projects"]["relation"]
+    project_ids = event["properties"]["Project"]["relation"]
     project = "Personal Management"
+
     if len(project_ids) > 0:
         project = projects[project_ids[0]["id"]]
-        project = project["properties"]["Project Name"]["title"][0]["plain_text"]
+        project = event["properties"]["Task name"]["title"][0]["plain_text"]
+
     priority = event["properties"]["Priority"]["select"]
     priority = priority["name"] if priority else "Low"
     priority = priorities.index(priority)
-    try:
-        work_block = event["properties"]["Work Block"]["multi_select"][0]["name"]
-    except:
-        work_block = "General"
-    title = event["properties"]["Name"]["title"][0]["plain_text"]
+    work_block = event["properties"]["Task name"]["title"][0]["plain_text"]
+
+    title = event["properties"]["Task name"]["title"][0]["plain_text"]
     gcal_id = event["properties"]["gcal_id"]["rich_text"]
     gcal_id = "" if len(gcal_id) == 0 else gcal_id[0]
-    date = event["properties"]["Goal Date"]["date"]["start"]
+    date = event["properties"]["Due"]["date"]["start"]
+
     created_time = event["properties"]["Created time"]["created_time"]
     est_time = event["properties"]["Estimated Time (hours)"]["number"]
     if not est_time:
         est_time = 1
-    if len(event["properties"]["Parent item"]["relation"]) > 0:
-        pid = event["properties"]["Parent item"]["relation"][0]["id"]
+    if len(event["properties"]["Parent-task"]["relation"]) > 0:
+        pid = event["properties"]["Parent-task"]["relation"][0]["id"]
         if pid in cache:
             parent_event = cache[pid]
         else:
@@ -74,7 +66,8 @@ def get_event_data(event, projects):
             cache[pid] = parent_event
         parent_title = get_event_data(parent_event, projects)["title"]
         title = "[{}] {}".format(parent_title, title)
-    is_parent = len(event["properties"]["Sub-item"]["relation"]) > 0
+    is_parent = len(event["properties"]["Sub-tasks"]["relation"]) > 0
+    
     result = {
         "id": event["id"],
         "gcal_id": gcal_id,
@@ -86,7 +79,6 @@ def get_event_data(event, projects):
         "priority": priority,
         "project": project,
         "work_block": work_block,
-        "description": description,
     }
     return result
 
@@ -97,7 +89,7 @@ def get_event_by_id(id_):
     headers = {
         "accept": "application/json",
         "Notion-Version": "2022-06-28",
-        "Authorization": "Bearer {}".format(NOTION_API_KEY),
+        "Authorization": "Bearer {}".format(NOTION_SECRET_KEY),
     }
 
     response = requests.get(url, headers=headers)
@@ -107,7 +99,7 @@ def get_event_by_id(id_):
 
 def get_notion_date(start_date, end_date):
     # Get all events for today and prior
-    url = "https://api.notion.com/v1/databases/{}/query".format(NOTION_TASK_LIST)
+    url = "https://api.notion.com/v1/databases/{}/query".format(NOTION_DATABASE_TASK_ID)
     payload = {
         "page_size": 100,
         "filter": date_filter(start_date, end_date),
@@ -115,19 +107,18 @@ def get_notion_date(start_date, end_date):
     headers = {
         "accept": "application/json",
         "Notion-Version": "2022-06-28",
-        "Authorization": "Bearer {}".format(NOTION_API_KEY),
+        "Authorization": "Bearer {}".format(NOTION_SECRET_KEY),
         "content-type": "application/json",
     }
 
     response = requests.post(url, json=payload, headers=headers)
     data = response.json()
-    events = data["results"]
-    return events
+    return data["results"]
 
 
 def get_notion_today():
     # Get all events for today and prior
-    url = "https://api.notion.com/v1/databases/{}/query".format(NOTION_TASK_LIST)
+    url = "https://api.notion.com/v1/databases/{}/query".format(NOTION_DATABASE_TASK_ID)
     payload = {
         "page_size": 100,
         "filter": today_filter(),
@@ -135,7 +126,7 @@ def get_notion_today():
     headers = {
         "accept": "application/json",
         "Notion-Version": "2022-06-28",
-        "Authorization": "Bearer {}".format(NOTION_API_KEY),
+        "Authorization": "Bearer {}".format(NOTION_SECRET_KEY),
         "content-type": "application/json",
     }
 
@@ -147,14 +138,14 @@ def get_notion_today():
 
 def get_notion_projects():
     # Get all events for tomorrow and prior
-    url = "https://api.notion.com/v1/databases/{}/query".format(NOTION_PROJECTS_LIST)
+    url = "https://api.notion.com/v1/databases/{}/query".format(NOTION_DATABASE_PROJECTS_ID)
     payload = {
         "page_size": 100,
     }
     headers = {
         "accept": "application/json",
         "Notion-Version": "2022-06-28",
-        "Authorization": "Bearer {}".format(NOTION_API_KEY),
+        "Authorization": "Bearer {}".format(NOTION_SECRET_KEY),
         "content-type": "application/json",
     }
 
@@ -166,7 +157,7 @@ def get_notion_projects():
 
 def get_notion_tomorrow():
     # Get all events for tomorrow and prior
-    url = "https://api.notion.com/v1/databases/{}/query".format(NOTION_TASK_LIST)
+    url = "https://api.notion.com/v1/databases/{}/query".format(NOTION_DATABASE_TASK_ID)
     payload = {
         "page_size": 100,
         "filter": tomorrow_filter(),
@@ -174,14 +165,13 @@ def get_notion_tomorrow():
     headers = {
         "accept": "application/json",
         "Notion-Version": "2022-06-28",
-        "Authorization": "Bearer {}".format(NOTION_API_KEY),
+        "Authorization": "Bearer {}".format(NOTION_SECRET_KEY),
         "content-type": "application/json",
     }
 
     response = requests.post(url, json=payload, headers=headers)
     data = response.json()
-    events = data["results"]
-    return events
+    return data["results"]
 
 
 def get_notion_events(start_date, end_date):
@@ -232,7 +222,7 @@ def update_notion_event(notion_id, gcal_id, gcal_link):
     headers = {
         "accept": "application/json",
         "Notion-Version": "2022-06-28",
-        "Authorization": "Bearer {}".format(NOTION_API_KEY),
+        "Authorization": "Bearer {}".format(NOTION_SECRET_KEY),
         "content-type": "application/json",
     }
 

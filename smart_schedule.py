@@ -1,7 +1,6 @@
 import base64
 import datetime
 import pytz
-import time
 
 from daily_timeline import DailyTimeline
 from gcal_functions import get_google_events, add_google_event, delete_google_event
@@ -90,7 +89,6 @@ def schedule_notion_to_google(today=True, num_days=1, reschedule=False, delete=F
             estimate = event["estimate"]
             project = event["project"]
             work_block = event["work_block"]
-            description = event["description"]
             smart_start = timeline.find_next_time(estimate)
             if smart_start:
                 # Buffer time in the morning is morning focus. morning focus
@@ -111,7 +109,6 @@ def schedule_notion_to_google(today=True, num_days=1, reschedule=False, delete=F
                     work_block,
                     project,
                     title,
-                    description,
                     start_datetime,
                     end_datetime,
                 )

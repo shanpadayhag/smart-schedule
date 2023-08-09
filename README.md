@@ -1,5 +1,26 @@
 # Second Brain Smart Scheduling: Notion + Google
 
+## Installation
+Copy and fill environment variables
+```sh
+cp .env.example .env
+```
+
+Install python virtual environment
+```sh
+python3 -m venv .venv
+```
+
+Activate virtual environment
+```sh
+source .venv/bin/activate
+```
+
+Run script
+```sh
+python second_brain.py --today
+```
+
 ## Usage
 ```
 usage: second_brain.py [-h] [--today] [--days DAYS] [--reschedule] [--force]
@@ -14,7 +35,7 @@ options:
 
 ## Requirements
  - Python 3.7+ (tested with python 3.11)
- - installation of requirements `pip install -r reqirements.txt`
+ - installation of requirements `pip install -r requirements.txt`
  - bashrc with API integration setup
 ```
 # File: ~/.bashrc
@@ -23,12 +44,14 @@ standard file contents...
 
 ...
 export GOOGLE_CREDENTIALS_BASE_DIR="/home/user/.second_brain_credentials" 
-export NOTION_API_KEY="<< notion api key>>"
-export NOTION_TASK_LIST="<< notion task list id >>"
-export NOTION_PROJECTS_LIST="<< list of notion projects >>"
+export NOTION_SECRET_KEY="<< notion api key>>"
+export NOTION_DATABASE_TASK_ID="<< notion task list id >>"
+export NOTION_DATABASE_PROJECTS_ID="<< list of notion projects >>"
 export SCHEDULING_CALENDAR_ID="<< schedule calendar id >>"
-export WORK_CALENDAR_ID="<< work calendar id >>"
+export GOOGLE_CALENDAR_ID="<< work calendar id >>"
 ```
+
+Duplicate Notion Template `https://excited-croissant-4e3.notion.site/project-planner-915d685969fa4d58b9ac930197fe6edd?pvs=4`
 
 ## Feature TODO
 - [x] Notion API Integration

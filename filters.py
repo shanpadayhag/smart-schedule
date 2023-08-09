@@ -18,7 +18,7 @@ def today_filter():
         "and": [
             {"property": "Status", "status": {"does_not_equal": "Done"}},
             {
-                "property": "Goal Date",
+                "property": "Due",
                 "date": {
                     "on_or_before": get_today_ISO8601(),
                 },
@@ -32,13 +32,13 @@ def date_filter(start_date, end_date):
         "and": [
             {"property": "Status", "status": {"does_not_equal": "Done"}},
             {
-                "property": "Goal Date",
+                "property": "Due",
                 "date": {
                     "on_or_after": start_date[:10],
                 },
             },
             {
-                "property": "Goal Date",
+                "property": "Due",
                 "date": {
                     "before": end_date[:10],
                 },
@@ -52,13 +52,13 @@ def tomorrow_filter():
         "and": [
             {"property": "Status", "status": {"does_not_equal": "Done"}},
             {
-                "property": "Goal Date",
+                "property": "Due",
                 "date": {
                     "after": get_today_ISO8601(),
                 },
             },
             {
-                "property": "Goal Date",
+                "property": "Due",
                 "date": {
                     "on_or_before": get_tomorrow_ISO8601(),
                 },
