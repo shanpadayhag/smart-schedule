@@ -3,7 +3,7 @@
 ## Installation
 Copy and fill environment variables
 ```sh
-cp .env.example .env
+cp environments/.env.development .env
 ```
 
 Install python virtual environment
