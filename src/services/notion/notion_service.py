@@ -1,12 +1,13 @@
-from datetime import datetime
-
 import requests
+
+from datetime import datetime
+from src.data_transfer_objects.tasks.task_dto import TaskDTO
 from src.configs.env.env import Env
-from src.services.datetime.datetime import notionFormatDate
+from src.services.datetime.datetime import fromNotionDate, notionFormatDate
 
 def getNotionTasks(startDate: datetime, endDate: datetime):
     url = 'https://api.notion.com/v1/databases/{}/query'.format(Env.notionDatabaseTaskId)
-    data = {
+    parameters = {
         "page_size": Env.notionPageSize,
         "filter": {
             "property": "Due",
@@ -16,7 +17,20 @@ def getNotionTasks(startDate: datetime, endDate: datetime):
         }
     }
 
-    return requests.post(url, json=data, headers=__getNotionApiHeader()).json()
+    data = requests.post(url, json=parameters, headers=__getNotionApiHeader()).json()
+    tasks = []
+
+    for task in data['results']:
+        taskProperties = task['properties']
+        tasks.append(TaskDTO(
+            id=task['id'],
+            title=taskProperties['Task name']['title'][0]['text']['content'],
+            due=fromNotionDate(taskProperties['Due']['date']['start']),
+            estimatedTime=taskProperties['Estimated Time (hours)']['number']
+        ))
+    print(tasks)
+
+    return tasks
 
 def getNotionTaskContent(id: int):
     pass
