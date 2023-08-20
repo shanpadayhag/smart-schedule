@@ -10,10 +10,20 @@ def getNotionTasks(startDate: datetime, endDate: datetime):
     parameters = {
         "page_size": Env.notionPageSize,
         "filter": {
-            "property": "Due",
-            "date": {
-                "on_or_after": notionFormatDate(startDate),
-            }
+            'and': [
+                {
+                    "property": "Due",
+                    "date": {
+                        "on_or_after": notionFormatDate(startDate),
+                    }
+                },
+                {
+                    "property": "Due",
+                    "date": {
+                        "on_or_before": notionFormatDate(endDate),
+                    }
+                },
+            ]
         }
     }
 
@@ -28,7 +38,6 @@ def getNotionTasks(startDate: datetime, endDate: datetime):
             due=fromNotionDate(taskProperties['Due']['date']['start']),
             estimatedTime=taskProperties['Estimated Time (hours)']['number']
         ))
-    print(tasks)
 
     return tasks
 
