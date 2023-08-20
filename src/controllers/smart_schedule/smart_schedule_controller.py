@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from src.services.datetime.datetime import getStartDateTimeOf
 from src.services.notion.notion_service import getNotionTasks
 

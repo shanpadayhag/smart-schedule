@@ -26,7 +26,7 @@ def getNotionTasks(startDate: datetime, endDate: datetime):
                 {
                     'property': 'Status',
                     'status': {
-                        'equals': 'in-progress'
+                        'equals': '🔄'
                     }
                 }
             ]
