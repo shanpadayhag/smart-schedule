@@ -8,21 +8,27 @@ from src.services.datetime.datetime import fromNotionDate, notionFormatDate
 def getNotionTasks(startDate: datetime, endDate: datetime):
     url = 'https://api.notion.com/v1/databases/{}/query'.format(Env.notionDatabaseTaskId)
     parameters = {
-        "page_size": Env.notionPageSize,
-        "filter": {
+        'page_size': Env.notionPageSize,
+        'filter': {
             'and': [
                 {
-                    "property": "Due",
-                    "date": {
-                        "on_or_after": notionFormatDate(startDate),
+                    'property': 'Due',
+                    'date': {
+                        'on_or_after': notionFormatDate(startDate),
                     }
                 },
                 {
-                    "property": "Due",
-                    "date": {
-                        "on_or_before": notionFormatDate(endDate),
+                    'property': 'Due',
+                    'date': {
+                        'on_or_before': notionFormatDate(endDate),
                     }
                 },
+                {
+                    'property': 'Status',
+                    'status': {
+                        'equals': 'in-progress'
+                    }
+                }
             ]
         }
     }

@@ -5,7 +5,7 @@ from src.services.notion.notion_service import getNotionTasks
 def scheduleTasksToday(reschedule: bool):
     currentDate = getStartDateTimeOf(datetime=datetime.now())
 
-    getNotionTasks(startDate=currentDate, endDate=currentDate)
+    tasks = getNotionTasks(startDate=currentDate, endDate=currentDate)
 
     if reschedule:
         # TODO: DELETE EXISTING TASKS
