@@ -190,11 +190,11 @@ def add_google_event(
         "colorId": BLOCK_TO_COLOR[work_block] if work_block in BLOCK_TO_COLOR else 8,
         "start": {
             "dateTime": event_start,
-            "timeZone": "America/New_York",
+            "timeZone": "Asia/Manila",
         },
         "end": {
             "dateTime": event_end,
-            "timeZone": "America/New_York",
+            "timeZone": "Asia/Manila",
         },
         "reminders": {
             "useDefault": True,

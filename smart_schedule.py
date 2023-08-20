@@ -24,7 +24,7 @@ def get_today_delta(days, hours, minutes):
         0,
     )
     date_delta = today_with_time + datetime.timedelta(days=days)
-    return pytz.timezone("US/Eastern").localize(date_delta)
+    return pytz.timezone("Asia/Manila").localize(date_delta)
 
 
 def add_day(curr_day, days=1):
@@ -49,76 +49,77 @@ def schedule_notion_to_google(today=True, num_days=1, reschedule=False, delete=F
         day_start = get_date_relative(delta_days)
         day_end = get_date_relative(delta_days + 1)
         nevents = get_notion_events(day_start, day_end)
-        projects = sorted(list(set([event["project"] for event in nevents])))
-        projects = projects + ["Google"]
-        total_hours = sum(e["estimate"] for e in nevents)
-        if reschedule or delete:
-            for event in nevents:
-                title = event["title"]
-                gcal_id = event["gcal_id"]
-                if gcal_id != "":
-                    print("Deleting old event: {}".format(title))
-                    eid = str(
-                        base64.b64decode(
-                            gcal_id["text"]["link"]["url"].split("eid=")[-1]
-                        )
-                    )[2:-1].split()[0]
-                    delete_google_event(eid)
-                    update_notion_event(event["id"], None, None)
-        if delete:
-            continue
+        print(nevents)
+        # projects = sorted(list(set([event["project"] for event in nevents])))
+        # projects = projects + ["Google"]
+        # total_hours = sum(e["estimate"] for e in nevents)
+        # if reschedule or delete:
+        #     for event in nevents:
+        #         title = event["title"]
+        #         gcal_id = event["gcal_id"]
+        #         if gcal_id != "":
+        #             print("Deleting old event: {}".format(title))
+        #             eid = str(
+        #                 base64.b64decode(
+        #                     gcal_id["text"]["link"]["url"].split("eid=")[-1]
+        #                 )
+        #             )[2:-1].split()[0]
+        #             delete_google_event(eid)
+        #             update_notion_event(event["id"], None, None)
+        # if delete:
+        #     continue
 
-        print("Need to schedule {} hours of events.".format(total_hours))
-        print("Projects today: {}".format(" ".join(projects)))
-        gevents = get_google_events(day_start, day_end)
-        timeline = DailyTimeline(projects=projects)
-        for event in gevents:
-            timeline.add_event(
-                "General",
-                event["title"],
-                event["start"]["hour"] + event["start"]["minute"] / MIN_PER_HR,
-                event["end"]["hour"] + event["end"]["minute"] / MIN_PER_HR,
-            )
+        # print("Need to schedule {} hours of events.".format(total_hours))
+        # print("Projects today: {}".format(" ".join(projects)))
+        # gevents = get_google_events(day_start, day_end)
+        # timeline = DailyTimeline(projects=projects)
+        # for event in gevents:
+        #     timeline.add_event(
+        #         "General",
+        #         event["title"],
+        #         event["start"]["hour"] + event["start"]["minute"] / MIN_PER_HR,
+        #         event["end"]["hour"] + event["end"]["minute"] / MIN_PER_HR,
+        #     )
 
-        for event in nevents:
-            title = event["title"]
-            gcal_id = event["gcal_id"]
-            if gcal_id != "" and not reschedule:
-                print("{} is already scheduled".format(event["title"]))
-                continue
-            estimate = event["estimate"]
-            project = event["project"]
-            work_block = event["work_block"]
-            smart_start = timeline.find_next_time(estimate)
-            if smart_start:
-                # Buffer time in the morning is morning focus. morning focus
-                # in the afternoon is buffer time.
-                if work_block == "Buffer Time" and smart_start < 11.5:
-                    work_block = "Morning Focus"
-                elif work_block == "Morning Focus" and smart_start > 11.5:
-                    work_block = "Buffer Time"
-                smart_end = smart_start + estimate
-                days = delta_days
-                hours = int(smart_start)
-                minutes = int(smart_start % 1 * MIN_PER_HR)
-                start_datetime = get_today_delta(days, hours, minutes).isoformat()
-                hours = int(smart_end)
-                minutes = int(smart_end % 1 * MIN_PER_HR)
-                end_datetime = get_today_delta(days, hours, minutes).isoformat()
-                new_event = add_google_event(
-                    work_block,
-                    project,
-                    title,
-                    start_datetime,
-                    end_datetime,
-                )
-                update_notion_event(event["id"], new_event["id"], new_event["htmlLink"])
-                timeline.add_event(
-                    project,
-                    title,
-                    smart_start,
-                    smart_start + estimate,
-                )
-                print("Scheduled event: {}".format(title))
-            else:
-                print("Couldnt find a time. {} {}".format(title, estimate))
+        # for event in nevents:
+        #     title = event["title"]
+        #     gcal_id = event["gcal_id"]
+        #     if gcal_id != "" and not reschedule:
+        #         print("{} is already scheduled".format(event["title"]))
+        #         continue
+        #     estimate = event["estimate"]
+        #     project = event["project"]
+        #     work_block = event["work_block"]
+        #     smart_start = timeline.find_next_time(estimate)
+        #     if smart_start:
+        #         # Buffer time in the morning is morning focus. morning focus
+        #         # in the afternoon is buffer time.
+        #         if work_block == "Buffer Time" and smart_start < 11.5:
+        #             work_block = "Morning Focus"
+        #         elif work_block == "Morning Focus" and smart_start > 11.5:
+        #             work_block = "Buffer Time"
+        #         smart_end = smart_start + estimate
+        #         days = delta_days
+        #         hours = int(smart_start)
+        #         minutes = int(smart_start % 1 * MIN_PER_HR)
+        #         start_datetime = get_today_delta(days, hours, minutes).isoformat()
+        #         hours = int(smart_end)
+        #         minutes = int(smart_end % 1 * MIN_PER_HR)
+        #         end_datetime = get_today_delta(days, hours, minutes).isoformat()
+        #         new_event = add_google_event(
+        #             work_block,
+        #             project,
+        #             title,
+        #             start_datetime,
+        #             end_datetime,
+        #         )
+        #         update_notion_event(event["id"], new_event["id"], new_event["htmlLink"])
+        #         timeline.add_event(
+        #             project,
+        #             title,
+        #             smart_start,
+        #             smart_start + estimate,
+        #         )
+        #         print("Scheduled event: {}".format(title))
+        #     else:
+        #         print("Couldnt find a time. {} {}".format(title, estimate))
