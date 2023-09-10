@@ -49,9 +49,8 @@ def schedule_notion_to_google(today=True, num_days=1, reschedule=False, delete=F
         day_start = get_date_relative(delta_days)
         day_end = get_date_relative(delta_days + 1)
         nevents = get_notion_events(day_start, day_end)
-        print(nevents)
-        # projects = sorted(list(set([event["project"] for event in nevents])))
-        # projects = projects + ["Google"]
+        projects = sorted(list(set([event["project"] for event in nevents])))
+        projects = projects + ["Google"]
         # total_hours = sum(e["estimate"] for e in nevents)
         # if reschedule or delete:
         #     for event in nevents:
@@ -69,9 +68,9 @@ def schedule_notion_to_google(today=True, num_days=1, reschedule=False, delete=F
         # if delete:
         #     continue
 
-        # print("Need to schedule {} hours of events.".format(total_hours))
-        # print("Projects today: {}".format(" ".join(projects)))
-        # gevents = get_google_events(day_start, day_end)
+        print("Need to schedule {} hours of events.".format(total_hours))
+        print("Projects today: {}".format(" ".join(projects)))
+        gevents = get_google_events(day_start, day_end)
         # timeline = DailyTimeline(projects=projects)
         # for event in gevents:
         #     timeline.add_event(
