@@ -1,5 +1,5 @@
 from datetime import datetime
-from data_transfer_objects.tasks.task_dto import TaskDTO
+from src.data_transfer_objects.tasks.task_dto import TaskDTO
 
 class NotionTaskDTO(TaskDTO):
     def __init__(self, id: str, title: str, due: datetime, estimatedTime: int) -> None:
