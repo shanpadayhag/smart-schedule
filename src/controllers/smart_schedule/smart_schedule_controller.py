@@ -6,10 +6,10 @@ from src.services.google import google_service
 
 def scheduleTasksToday(reschedule: bool):
     currentDate = getStartDateTimeOf(datetime=datetime.now())
-    gcCredentials = google_service.getCredentials()
+    service = google_service.getService()
 
     tasks = getNotionTasks(startDate=currentDate, endDate=currentDate)
-    getGCEvents(startDate=currentDate, endDate=currentDate, gcCredentials=gcCredentials)
+    getGCEvents(startDate=currentDate, endDate=currentDate, gcService=service)
 
     if reschedule:
         # TODO: DELETE EXISTING TASKS

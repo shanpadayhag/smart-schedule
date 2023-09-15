@@ -3,6 +3,7 @@ import os
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
 from src.configs.env.env import Env
 
 def getCredentials():
@@ -22,3 +23,7 @@ def getCredentials():
             token.write(creds.to_json())
 
     return creds
+
+def getService():
+    gcCredentials = getCredentials()
+    return build('calendar', 'v3', gcCredentials)
