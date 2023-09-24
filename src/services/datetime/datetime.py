@@ -1,6 +1,7 @@
 import pytz
 
 from datetime import datetime as defaultDateTime
+from dateutil import parser
 from src.configs.env.env import Env
 
 def notionFormatDate(datetime: defaultDateTime) -> str:
@@ -13,6 +14,9 @@ def googleCalendarFormatDate(datetime: defaultDateTime) -> str:
     timezone = pytz.timezone(Env.appTimeZone)
     utcDatetime = timezone.localize(datetime).astimezone(pytz.utc).replace(tzinfo=None)
     return utcDatetime.isoformat() + 'Z'
+
+def fromGoogleDatetime(datetime: str) -> defaultDateTime:
+    return parser.parse(datetime)
 
 def getStartDateTimeOf(datetime: defaultDateTime) -> defaultDateTime:
     return defaultDateTime(

@@ -1,10 +1,24 @@
 from datetime import datetime
 from src.data_transfer_objects.projects.project_dto import ProjectDTO
-from src.data_transfer_objects.tasks.task_dto import TaskDTO
+from typing import Optional
 
-class EventDTO(TaskDTO):
-    project: ProjectDTO
+class EventDTO():
+    id: str
+    title: str
+    description: Optional[str]
+    startDate: datetime
+    endDate: datetime
 
-    def __init__(self, id: str, title: str, due: datetime, estimatedTime: int, project: ProjectDTO) -> None:
-        super().__init__(id=id, title=title, due=due, estimatedTime=estimatedTime)
-        self.project = project
+    def __init__(
+        self,
+        id: str,
+        title: str,
+        description: Optional[str],
+        startDate: datetime,
+        endDate: datetime
+    ) -> None:
+        self.id = id
+        self.title = title
+        self.description = description
+        self.startDate = startDate
+        self.endDate = endDate

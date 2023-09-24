@@ -12,7 +12,6 @@ def scheduleTasksToday(reschedule: bool):
 
     tasks = getNotionEvents(startDate=startDate, endDate=endDate)
     googleEvents = getGCEvents(startDate=now, endDate=endDate, googleService=service)
-    print(googleEvents)
 
     if reschedule:
         # TODO: DELETE EXISTING TASKS

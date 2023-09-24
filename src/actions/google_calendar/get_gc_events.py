@@ -1,8 +1,9 @@
 from datetime import datetime
 from src.configs.env.env import Env
-from src.services.datetime.datetime import googleCalendarFormatDate
+from src.data_transfer_objects.events.google_event_dto import GoogleEventDTO
+from src.services.datetime.datetime import fromGoogleDatetime, googleCalendarFormatDate
 
-def getGCEvents(startDate: datetime, endDate: datetime, googleService):
+def getGCEvents(startDate: datetime, endDate: datetime, googleService) -> list[GoogleEventDTO]:
     pageToken = None
     calendarEvents = []
 
@@ -15,8 +16,18 @@ def getGCEvents(startDate: datetime, endDate: datetime, googleService):
             orderBy='startTime'
         ).execute()
 
-        for calendarListEntry in calendarList["items"]:
-            calendarEvents.append(calendarListEntry)
+        for calendarListItem in calendarList["items"]:
+            try:
+                calendarEvents.append(GoogleEventDTO(
+                    id=calendarListItem['id'],
+                    title=calendarListItem['summary'],
+                    description=calendarListItem['description'] or None,
+                    startDate=fromGoogleDatetime(calendarListItem['start']['dateTime']),
+                    endDate=fromGoogleDatetime(calendarListItem['end']['dateTime']),
+                    htmlLink=calendarListItem['htmlLink'],
+                ))
+            except:
+                continue
 
         pageToken = calendarList.get("nextPageToken")
 
