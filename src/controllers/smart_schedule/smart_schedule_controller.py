@@ -1,15 +1,18 @@
 from datetime import datetime
 from src.actions.google_calendar.get_gc_events import getGCEvents
-from src.actions.notion.get_notion_tasks import getNotionTasks
-from src.services.datetime.datetime import getStartDateTimeOf
-from src.services.google import google_service
+from src.actions.notion.get_notion_events import getNotionEvents
+from src.services.datetime.datetime import getStartDateTimeOf, getEndDateTimeOf
+from src.services.google import google_service as GoogleService
 
 def scheduleTasksToday(reschedule: bool):
-    currentDate = getStartDateTimeOf(datetime=datetime.now())
-    service = google_service.getService()
+    now = datetime.now()
+    startDate = getStartDateTimeOf(datetime=now)
+    endDate = getEndDateTimeOf(datetime=now)
+    service = GoogleService.calendarService()
 
-    tasks = getNotionTasks(startDate=currentDate, endDate=currentDate)
-    getGCEvents(startDate=currentDate, endDate=currentDate, gcService=service)
+    tasks = getNotionEvents(startDate=startDate, endDate=endDate)
+    googleEvents = getGCEvents(startDate=now, endDate=endDate, googleService=service)
+    print(googleEvents)
 
     if reschedule:
         # TODO: DELETE EXISTING TASKS

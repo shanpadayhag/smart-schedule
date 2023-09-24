@@ -7,23 +7,29 @@ from googleapiclient.discovery import build
 from src.configs.env.env import Env
 
 def getCredentials():
-    creds = None
+    credentials = None
+    tokenFullPath = os.path.join(Env.googleCredentialsBaseDir, "token.json")
+    credentialsFullPath = os.path.join(Env.googleCredentialsBaseDir, "credentials.json")
 
-    if os.path.exists(os.path.join(Env.googleCredentialsBaseDir, "token.json")):
-        creds = Credentials.from_authorized_user_file(os.path.join(Env.googleCredentialsBaseDir, "token.json"), Env.googleScopes)
+    if os.path.exists(tokenFullPath):
+        credentials = Credentials.from_authorized_user_file(tokenFullPath, Env.googleScopes)
 
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
+    if not credentials or not credentials.valid:
+        if credentials and credentials.expired and credentials.refresh_token:
+            credentials.refresh(Request())
         else:
-            flow = InstalledAppFlow.from_client_secrets_file(os.path.join(Env.googleCredentialsBaseDir, "credentials.json"), Env.googleScopes)
-            creds = flow.run_local_server(port=0)
+            flow = InstalledAppFlow.from_client_secrets_file(credentialsFullPath, Env.googleScopes)
+            credentials = flow.run_local_server(port=0)
 
-        with open(os.path.join(Env.googleCredentialsBaseDir, "token.json"), "w") as token:
-            token.write(creds.to_json())
+        with open(tokenFullPath, "w") as token:
+            token.write(credentials.to_json())
 
-    return creds
+    return credentials
 
-def getService():
-    gcCredentials = getCredentials()
-    return build('calendar', 'v3', gcCredentials)
+def calendarService():
+    googleCredentials = getCredentials()
+    return build(
+        serviceName='calendar', 
+        version='v3',
+        credentials=googleCredentials
+    )
