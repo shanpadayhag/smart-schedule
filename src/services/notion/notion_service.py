@@ -1,9 +1,8 @@
-import typing
 import requests
 
 from src.configs.env.env import Env
 
-def requestNotion(url: str, parameters: typing.Dict):
+def requestNotion(url: str, parameters: dict = {}):
     return requests.post(url, json=parameters, headers=__getNotionApiHeader()).json()
 
 def __getNotionApiHeader() -> str:

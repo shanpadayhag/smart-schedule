@@ -7,12 +7,12 @@ class GoogleEventDTO(EventDTO):
 
     def __init__(
         self,
-        id: str,
         title: str,
-        description: Optional[str],
         startDate: datetime,
         endDate: datetime,
-        htmlLink: str
+        htmlLink: str,
+        id: Optional[str] = None,
+        description: Optional[str] = None,
     ) -> None:
         super().__init__(
             id=id,

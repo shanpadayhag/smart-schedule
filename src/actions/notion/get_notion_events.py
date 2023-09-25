@@ -1,8 +1,8 @@
 from datetime import datetime
-from src.services.notion.notion_service import requestNotion
-from src.data_transfer_objects.tasks.task_dto import TaskDTO
 from src.configs.env.env import Env
+from src.data_transfer_objects.tasks.task_dto import TaskDTO
 from src.services.datetime.datetime import fromNotionDate, notionFormatDate
+from src.services.notion.notion_service import requestNotion
 
 def getNotionEvents(startDate: datetime, endDate: datetime):
     url = 'https://api.notion.com/v1/databases/{}/query'.format(Env.notionDatabaseTaskId)

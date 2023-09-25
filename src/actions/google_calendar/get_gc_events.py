@@ -2,6 +2,7 @@ from datetime import datetime
 from src.configs.env.env import Env
 from src.data_transfer_objects.events.google_event_dto import GoogleEventDTO
 from src.services.datetime.datetime import fromGoogleDatetime, googleCalendarFormatDate
+import src.services.object.object_service as ObjectService
 
 def getGCEvents(startDate: datetime, endDate: datetime, googleService) -> list[GoogleEventDTO]:
     pageToken = None
@@ -21,7 +22,7 @@ def getGCEvents(startDate: datetime, endDate: datetime, googleService) -> list[G
                 calendarEvents.append(GoogleEventDTO(
                     id=calendarListItem['id'],
                     title=calendarListItem['summary'],
-                    description=calendarListItem['description'] or None,
+                    description=ObjectService.getNestedValue(calendarListItem, ['description']),
                     startDate=fromGoogleDatetime(calendarListItem['start']['dateTime']),
                     endDate=fromGoogleDatetime(calendarListItem['end']['dateTime']),
                     htmlLink=calendarListItem['htmlLink'],

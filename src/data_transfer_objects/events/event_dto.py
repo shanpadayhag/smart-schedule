@@ -3,19 +3,19 @@ from src.data_transfer_objects.projects.project_dto import ProjectDTO
 from typing import Optional
 
 class EventDTO():
-    id: str
+    id: Optional[str]
     title: str
-    description: Optional[str]
     startDate: datetime
     endDate: datetime
+    description: Optional[str]
 
     def __init__(
         self,
-        id: str,
         title: str,
-        description: Optional[str],
         startDate: datetime,
-        endDate: datetime
+        endDate: datetime,
+        id: Optional[str] = None,
+        description: Optional[str] = None,
     ) -> None:
         self.id = id
         self.title = title
