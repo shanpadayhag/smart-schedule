@@ -1,4 +1,5 @@
 from datetime import datetime
+from src.actions.notion.get_notion_current_sprint_task_ids import getNotionCurrentSprintTaskIds
 from src.actions.google_calendar.get_gc_events import getGCEvents
 from src.actions.notion.get_notion_events import getNotionEvents
 from src.actions.notion.get_notion_projects import getNotionProjects
@@ -11,18 +12,20 @@ def scheduleTasksToday(reschedule: bool):
     startDate = getStartDateTimeOf(datetime=now)
     endDate = getEndDateTimeOf(datetime=now)
     service = GoogleService.calendarService()
-
     projects = getNotionProjects()
-    tasks = getNotionEvents(startDate=startDate, endDate=endDate)
+    currentSprintTaskIds = getNotionCurrentSprintTaskIds()
+    tasks = getNotionEvents(startDate=startDate)
     googleEvents = getGCEvents(startDate=now, endDate=endDate, googleService=service)
+
+    filteredTasks = list(filter(lambda task: task.id in currentSprintTaskIds, tasks))
     timelineEvents = createTimeline(
         projects=projects,
-        tasks=tasks,
+        tasks=filteredTasks,
         googleEvents=googleEvents,
         startDate=now,
         endDate=endDate,
         reschedule=reschedule)
-    
+
     for event in timelineEvents:
         print(event.title, event.startDate, event.endDate)
 

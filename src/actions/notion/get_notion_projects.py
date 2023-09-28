@@ -4,7 +4,7 @@ from src.services.notion.notion_service import requestNotion
 import src.services.object.object_service as ObjectService
 
 def getNotionProjects() -> list[ProjectDTO]:
-    url = 'https://api.notion.com/v1/databases/{}/query'.format(Env.notionDatabaseProjectsId)
+    url = 'https://api.notion.com/v1/databases/{}/query'.format(Env.notionDatabaseProjectId)
 
     projects = []
     data = requestNotion(url=url)

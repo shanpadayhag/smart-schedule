@@ -13,11 +13,11 @@ def createTimeline(
     reschedule: bool = False,
 ) -> list[EventDTO]:
     timelineWeekDate = Env.workingHours[(startDate.weekday() + 1) % 7]
-    sortedGoogleEvents = sorted(googleEvents, key=lambda value: (
+    timelineEvents = sorted(googleEvents, key=lambda value: (
         value.startDate,
         value.endDate,
         value.title))
-    timelineEvents = []
+    sortedTasks = sorted(tasks, key=lambda value: (value.due, value.priority, value.estimatedTime))
 
     if (timelineWeekDate[0] <= startDate.hour):
         timelineStartHour = (startDate.hour + 1) % 24 if startDate.minute != 0 else startDate.hour
@@ -26,23 +26,25 @@ def createTimeline(
 
     timelineEndHour = timelineWeekDate[1]
 
-    for task in tasks:
+    for task in sortedTasks:
         currentTaskEventStart = timelineStartHour
         currentTaskEventEnd = timelineStartHour + task.estimatedTime
         currentTaskYear = startDate.year
         currentTaskMonth = startDate.month
         currentTaskDay = startDate.day
 
-        for event in sortedGoogleEvents:
-            if (currentTaskEventStart >= event.startDate.hour and currentTaskEventEnd > event.startDate.hour) or (currentTaskEventStart < event.endDate.hour and currentTaskEventEnd <= event.endDate.hour):
+        for event in timelineEvents:
+            if (currentTaskEventStart >= event.startDate.hour and currentTaskEventEnd > event.startDate.hour) \
+            or (currentTaskEventStart < event.endDate.hour and currentTaskEventEnd <= event.endDate.hour):
                 currentTaskEventStart = event.endDate.hour
                 currentTaskEventEnd = event.endDate.hour + task.estimatedTime
-        
+
         if currentTaskEventEnd > timelineEndHour:
             continue
-        timelineEvents.append(EventDTO(
-        title=task.title,
-        startDate=datetime(year=currentTaskYear, month=currentTaskMonth, day=currentTaskDay, hour=currentTaskEventStart),
-        endDate=datetime(year=currentTaskYear, month=currentTaskMonth, day=currentTaskDay, hour=currentTaskEventEnd)))
 
-    return timelineEvents
+        timelineEvents.append(EventDTO(
+            title=task.title,
+            startDate=datetime(year=currentTaskYear, month=currentTaskMonth, day=currentTaskDay, hour=currentTaskEventStart),
+            endDate=datetime(year=currentTaskYear, month=currentTaskMonth, day=currentTaskDay, hour=currentTaskEventEnd)))
+
+    return filter(lambda event: not isinstance(event, GoogleEventDTO), timelineEvents)

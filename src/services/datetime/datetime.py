@@ -11,7 +11,7 @@ def fromNotionDate(datetime: str) -> defaultDateTime:
     return defaultDateTime.strptime(datetime, '%Y-%m-%d')
 
 def googleCalendarFormatDate(datetime: defaultDateTime) -> str:
-    timezone = pytz.timezone(Env.appTimeZone)
+    timezone = Env.appTimeZone
     utcDatetime = timezone.localize(datetime).astimezone(pytz.utc).replace(tzinfo=None)
     return utcDatetime.isoformat() + 'Z'
 
