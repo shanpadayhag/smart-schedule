@@ -12,12 +12,16 @@ def createTimeline(
     endDate: datetime,
     reschedule: bool = False,
 ) -> list[EventDTO]:
-    timelineWeekDate = Env.workingHours[(startDate.weekday() + 1) % 7]
+    workingHours = Env.workingHours[(startDate.weekday() + 1) % 7]
+    timelineWeekDate = workingHours
     timelineEvents = sorted(googleEvents, key=lambda value: (
         value.startDate,
         value.endDate,
         value.title))
     sortedTasks = sorted(tasks, key=lambda value: (value.due, value.priority, value.estimatedTime))
+
+    if len(workingHours) <= 0:
+        return []
 
     if (timelineWeekDate[0] <= startDate.hour):
         timelineStartHour = (startDate.hour + 1) % 24 if startDate.minute != 0 else startDate.hour
